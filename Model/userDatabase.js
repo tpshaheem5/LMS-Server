@@ -21,7 +21,8 @@ const userSchema = mongoose.Schema({
     address:{
         type:String,
         required:true,
-    }
+    },
+    borrowBooks:[]
    
 })
 module.exports = mongoose.model("user",userSchema)

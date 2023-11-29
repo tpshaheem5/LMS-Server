@@ -3,7 +3,7 @@ const app = express();
 const userSchema = require("../Model/userDatabase");
 const bcrypt = require("bcrypt")
 const jwt = require ("jsonwebtoken")
-
+require("dotenv").config()
 const signup = async (req, res) => {
   console.log(req.body);
 
@@ -29,31 +29,38 @@ const signup = async (req, res) => {
 };
 
 //****************** user login ***************** */
+const login = async (req, res) => {
+  const { email, password } = req.body;
 
-const login = async (req,res)=>{
-  const {email,password}=req.body;
+  try {
+    const checkUser = await userSchema.findOne({ email: email });
+    console.log("check the user",checkUser)
 
-  console.log("email",email);
+    if (!checkUser) {
+      return res.status(404).json({ status: "failure", message: "Invalid email" });
+    }
 
-  
+    // Use bcrypt.compareSync instead of bcrypt.compare
+    if (!bcrypt.compareSync(password, checkUser.password)) {
+      return res.status(404).json({ status: "failure", message: "Invalid password" });
+    }
 
-  const checkUser = await userSchema.findOne({email:email})
+    const user_id = checkUser._id;
+    const token = jwt.sign({id:user_id},process.env.SECRET_KEY);
 
-  console.log("checkUser",checkUser);
-  const user_id = checkUser._id;
-  
-  if (!checkUser) {
-    return res.status(404).json({ message: "invalid email" });
+    res.json({
+      status: "success",
+      message: "Successfully logged in",
+      email: email,
+      token: token,
+      User: checkUser,
+      user_id,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: "failure", message: "Something went wrong...", error_message: error.message });
   }
-
-  if(!bcrypt.compare(password,checkUser.password)){
-    return res.status(404).json({message:"invalid password"});
-  }
-
-  const token = jwt.sign(email,"shaymu")
-  res.json({status: "success",message: "successfully",email: email,token: token,User:checkUser, user_id,});
-}
-    
+};
 
 
 module.exports = { signup,login };

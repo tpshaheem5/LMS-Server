@@ -1,4 +1,5 @@
 const bookSchema = require("../Model/booksDatabase")
+const userSchema = require('../Model/userDatabase')
 
 const getAllBooks = async (req,res)=>{
     try {
@@ -6,7 +7,7 @@ const getAllBooks = async (req,res)=>{
         res.status(200).json(allBooks)
     } catch (error) {
       console.error(error)
-      res.status(500).json({error:"Internal Server error"})  
+      res.json({error:error.message})  
     }
 }
 
@@ -62,17 +63,61 @@ const reserveBook = async (req, res) => {
       }
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: 'Internal Server error' });
+      res.json({ error: error.message });
     }
   };
-
-  const borrowBook = async (req,res)=>{
+  const borrowBook = async (req, res) => {
     try {
-        const bookId = req.params.bookId
-        const book = await bookSchema
-    } catch (error) {
+      const bookId = req.params.bookId;
+      const book = await bookSchema.findById(bookId);
+  
+      if (!book) {
+        return res.status(404).json({ error: 'Book not found' });
+      }
+      if (book.availableCopies > 0) {
         
+         await userSchema.updateOne({_id:book._id},{$set:{availableCopies:book.availableCopies - 1}});
+        const user = await userSchema.findById(res.token);
+        if (user) {
+          await userSchema.updateOne({_id:res.token},{$push:{borrowBooks:book}});
+          res.status(201).json({ message: 'Book borrowed successfully', borrowedBook: book });
+        } else {
+          res.status(404).json({ error: 'User not found' });
+        }
+      } else {
+        res.status(400).json({ error: 'No available copies for borrowing' });
+      }
+    } catch (error) {
+      console.error(error);
+      res.json({ error: error.message });
     }
-  }
+  };
+  
+const returnBook = async (req,res)=>{
+  try {
+    const bookId = req.params.bookId;
+    const book = await bookSchema.findById(bookId);
 
-module.exports = {getAllBooks,getBookDetails,reserveBook }
+    if (!book) {
+      return res.status(404).json({ error: 'Book not found' });
+    }
+    if (book.availableCopies > 0) {
+    
+       await userSchema.updateOne({_id:book._id},{$set:{availableCopies:book.availableCopies + 1}});
+      const user = await userSchema.findById(res.token);
+      if (user) {
+        await userSchema.updateOne({_id:res.token},{$pull:{borrowBooks:{_id:book._id}}});
+        res.status(201).json({ message: 'Book returned successfully', borrowedBook: book });
+      } else {
+        res.status(404).json({ error: 'User not found' });
+      }
+    } else {
+      res.status(400).json({ error: 'Book is not currently borrowedg' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.json({ error: error.message });
+  }
+}
+
+module.exports = {getAllBooks,getBookDetails,reserveBook,borrowBook,returnBook }
