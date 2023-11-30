@@ -5,6 +5,7 @@ const bodyparser = require("body-parser");
 const userController = require("../User/userController")
 const books = require("../User/books")
 const tryCatch = require ("../middlware/tryCatch.js")
+const profile = require("../User/userProfile")
 
 // app.use(bodyparser.json());
 // app.use(bodyparser.urlencoded({ extended: true }));
@@ -18,6 +19,9 @@ router.get("/books/:bookId",auth,tryCatch(books.getBookDetails))
 router.post("/books/:bookId/reserve",auth,tryCatch(books.reserveBook))
 router.post("/books/:bookId/borrow",auth,tryCatch(books.borrowBook))
 router.post("/books/:bookId/return",auth,tryCatch(books.returnBook))
+
+router.get("/profile",auth,tryCatch(profile.getUserProfle))
+router.put("/profile",auth,tryCatch(profile.updateProfile))
 
 
 module.exports = router 

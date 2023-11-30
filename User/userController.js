@@ -34,7 +34,6 @@ const login = async (req, res) => {
 
   try {
     const checkUser = await userSchema.findOne({ email: email });
-    console.log("check the user",checkUser)
 
     if (!checkUser) {
       return res.status(404).json({ status: "failure", message: "Invalid email" });
