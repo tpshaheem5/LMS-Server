@@ -66,32 +66,43 @@ const reserveBook = async (req, res) => {
       res.json({ error: error.message });
     }
   };
-  const borrowBook = async (req, res) => {
-    try {
-      const bookId = req.params.bookId;
-      const book = await bookSchema.findById(bookId);
-  
-      if (!book) {
-        return res.status(404).json({ error: 'Book not found' });
-      }
-      if (book.availableCopies > 0) {
-        
-         await userSchema.updateOne({_id:book._id},{$set:{availableCopies:book.availableCopies - 1}});
-        const user = await userSchema.findById(res.token);
-        if (user) {
-          await userSchema.updateOne({_id:res.token},{$push:{borrowBooks:book}});
-          res.status(201).json({ message: 'Book borrowed successfully', borrowedBook: book });
-        } else {
-          res.status(404).json({ error: 'User not found' });
-        }
-      } else {
-        res.status(400).json({ error: 'No available copies for borrowing' });
-      }
-    } catch (error) {
-      console.error(error);
-      res.json({ error: error.message });
+
+const borrowBook = async (req, res) => {
+  try {
+    const bookId = req.params.bookId;
+    const book = await bookSchema.findById(bookId);
+
+    if (!book) {
+      return res.status(404).json({ error: 'Book not found' });
     }
-  };
+    if (book.availableCopies > 0) {
+      await userSchema.updateOne({ _id: res.token }, { $set: { availableCopies: book.availableCopies - 1 } });
+      const user = await userSchema.findById(res.token);
+      if (user) {
+        // Set the due date based on your business logic
+        const dueDate = new Date();
+        dueDate.setDate(dueDate.getDate() + 14); // Example: Due date is set to 14 days from now
+
+        const borrowedBook = {
+          _id: book._id,
+          title: book.title,
+          dueDate: dueDate,
+        };
+
+        await userSchema.updateOne({ _id: res.token }, { $push: { borrowBooks: borrowedBook } });
+        res.status(201).json({ message: 'Book borrowed successfully', borrowedBook });
+      } else {
+        res.status(404).json({ error: 'User not found' });
+      }
+    } else {
+      res.status(400).json({ error: 'No available copies for borrowing' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.json({ error: error.message });
+  }
+};
+
   
 const returnBook = async (req,res)=>{
   try {
