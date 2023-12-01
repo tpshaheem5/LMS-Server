@@ -22,6 +22,7 @@ router.post("/books/:bookId/return",auth,tryCatch(books.returnBook))
 
 router.get("/profile",auth,tryCatch(profile.getUserProfle))
 router.put("/profile",auth,tryCatch(profile.updateProfile))
+router.put("/password",auth,tryCatch(profile.updatePassword))
 
 
 module.exports = router 

@@ -48,4 +48,4 @@ const updatePassword = async (req,res)=>{
     }
 }
 
-module.exports = {getUserProfle,updateProfile}
+module.exports = {getUserProfle,updateProfile,updatePassword}
