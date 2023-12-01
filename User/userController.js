@@ -38,9 +38,10 @@ const login = async (req, res) => {
     if (!checkUser) {
       return res.status(404).json({ status: "failure", message: "Invalid email" });
     }
-
-    // Use bcrypt.compareSync instead of bcrypt.compare
-    if (!bcrypt.compareSync(password, checkUser.password)) {
+    console.log('Provided password:', password);
+    console.log('Stored hashed password:', checkUser.password);
+  
+    if (!bcrypt.compare(password, checkUser.password)) {
       return res.status(404).json({ status: "failure", message: "Invalid password" });
     }
 
