@@ -42,30 +42,37 @@ const getBookDetails  = async (req,res)=>{
 //         res.status(500).json({ error: "Internal Server error" });
 //     }
 // }
-
 const reserveBook = async (req, res) => {
-    try {
-      const bookId = req.params.bookId;
-      const book = await bookSchema.findById(bookId);
-  
-      if (!book) {
-        return res.status(404).json({ error: 'Book not found' });
-      }
-  
-      if (book.availableCopies > 0) {
-        // If there are available copies, reserve the book
-        book.availableCopies -= 1;
-        await book.save();
-  
-        res.status(201).json({ message: 'Book reserved successfully', reservedBook: book });
-      } else {
-        res.status(400).json({ error: 'No available copies for reservation' });
-      }
-    } catch (error) {
-      console.error(error);
-      res.json({ error: error.message });
+  try {
+    const bookId = req.params.bookId;
+    const book = await bookSchema.findById(bookId);
+
+    if (!book) {
+      return res.status(404).json({ error: 'Book not found' });
     }
-  };
+    if (book.availableCopies > 0) {
+      book.availableCopies -= 1;
+      const user = await userSchema.findById(res.token);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      const reservedBook = {
+        _id: book._id,
+        title: book.title,
+      };
+      user.reserveBooks.push(reservedBook);
+      await user.save();
+      await book.save();
+      res.status(201).json({ message: 'Book reserved successfully', reservedBook: reservedBook });
+    } else {
+      res.status(400).json({ error: 'No available copies for reservation' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.json({ error: error.message });
+  }
+};
+
 
 const borrowBook = async (req, res) => {
   try {
@@ -79,9 +86,9 @@ const borrowBook = async (req, res) => {
       await userSchema.updateOne({ _id: res.token }, { $set: { availableCopies: book.availableCopies - 1 } });
       const user = await userSchema.findById(res.token);
       if (user) {
-        // Set the due date based on your business logic
+        
         const dueDate = new Date();
-        dueDate.setDate(dueDate.getDate() + 14); // Example: Due date is set to 14 days from now
+        dueDate.setDate(dueDate.getDate() + 14);
 
         const borrowedBook = {
           _id: book._id,
@@ -103,8 +110,7 @@ const borrowBook = async (req, res) => {
   }
 };
 
-  
-const returnBook = async (req,res)=>{
+const returnBook = async (req, res) => {
   try {
     const bookId = req.params.bookId;
     const book = await bookSchema.findById(bookId);
@@ -113,22 +119,22 @@ const returnBook = async (req,res)=>{
       return res.status(404).json({ error: 'Book not found' });
     }
     if (book.availableCopies > 0) {
-    
-       await userSchema.updateOne({_id:book._id},{$set:{availableCopies:book.availableCopies + 1}});
+      await userSchema.updateOne({_id: book._id}, {$set: {availableCopies: book.availableCopies + 1}});
       const user = await userSchema.findById(res.token);
       if (user) {
-        await userSchema.updateOne({_id:res.token},{$pull:{borrowBooks:{_id:book._id}}});
+        await userSchema.updateOne({_id: res.token}, {$pull: {borrowBooks: {_id: book._id}}});
         res.status(201).json({ message: 'Book returned successfully', borrowedBook: book });
       } else {
         res.status(404).json({ error: 'User not found' });
       }
     } else {
-      res.status(400).json({ error: 'Book is not currently borrowedg' });
+      res.status(400).json({ error: 'Book is not currently borrowed' });
     }
   } catch (error) {
     console.error(error);
     res.json({ error: error.message });
   }
-}
+};
+
 
 module.exports = {getAllBooks,getBookDetails,reserveBook,borrowBook,returnBook }

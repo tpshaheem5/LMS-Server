@@ -1,9 +1,6 @@
 const mongoose = require("mongoose");
 const reservationSchema = mongoose.Schema({
-  id: {
-    type: String,
-    required: true,
-  },
+  
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User", // Reference to the Users collection
@@ -16,16 +13,11 @@ const reservationSchema = mongoose.Schema({
   },
   reservationDate: {
     type: Date,
-    required: true,
-  },
-  status: {
-    type: String,
-    enum: ["Pending", "Available"],
-    required: true,
+    default: Date.now,
   },
   pickupDeadline: {
     type: Date,
-    required: true,
+    default: Date.now,
   },
 });
 module.exports = mongoose.model("Reservation",reservationSchema)

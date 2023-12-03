@@ -1,19 +1,16 @@
 const mongoose = require("mongoose");
 const finesSchema = mongoose.Schema({
-  id: {
-    type: String,
-    required: true,
-  },
+
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User", // Reference to the Users collection
     required: true,
   },
-  loanId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Loan", // Reference to the Loans collection
-    required: true,
-  },
+  // loanId: {
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: "Loan", // Reference to the Loans collection
+  //   required: true,
+  // },
   fineAmount: {
     type: Number,
     required: true,
@@ -23,5 +20,7 @@ const finesSchema = mongoose.Schema({
     enum: ["Paid", "Unpaid"],
     required: true,
   },
-  paymentDate: Date, // Date when the fine was paid (if applicable).
+  paymentDate: Date, 
 });
+
+module.exports = mongoose.model("Fines",finesSchema );

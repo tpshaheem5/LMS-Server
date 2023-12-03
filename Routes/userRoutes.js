@@ -7,13 +7,12 @@ const books = require("../User/books")
 const tryCatch = require ("../middlware/tryCatch.js")
 const profile = require("../User/userProfile")
 const loans = require("../User/loans")
-
+const fines = require("../User/fines")
 // app.use(bodyparser.json());
 // app.use(bodyparser.urlencoded({ extended: true }));
 
 
-router.get("/loans/:bookId",auth,tryCatch(loans.getSpecificBorrowedBook))
-router.get("/loans",auth,tryCatch(loans.getBorrowedbook))
+
 router.post("/signup",tryCatch(userController.signup))
 router.post("/login",tryCatch(userController.login))
 
@@ -28,6 +27,12 @@ router.get("/profile",auth,tryCatch(profile.getUserProfle))
 router.put("/profile",auth,tryCatch(profile.updateProfile))
 router.put("/password",auth,tryCatch(profile.updatePassword))
 
+router.get("/borrowed",auth,tryCatch(loans.getBorrowedbook))
+router.get("/borrowed/:bookId",auth,tryCatch(loans.getSpecificBorrowedBook))
+router.get("/reserved",auth,tryCatch(loans.getReservedBook))
+router.get("/reserved/:bookId",auth,tryCatch(loans.getSpecificReservedBooks))
 
+router.get("/allfines",auth,tryCatch(fines.getUserFines))
+router.get("/specific/:fineId",auth,tryCatch(fines.getUserSpecificFine))
 
 module.exports = router 

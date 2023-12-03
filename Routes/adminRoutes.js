@@ -3,9 +3,11 @@ const router = express.Router();
 const adminController = require("../Controller/adminController");
 const bookController = require("../Controller/bookController")
 const usermanagement = require("../Controller/usermanagement")
+const fines = require('../Controller/fines')
 const tryCatch = require("../middlware/tryCatch")
+const auth = require("../middlware/auth")
 
-router.post('/login', tryCatch(adminController));
+router.post('/login',auth,tryCatch(adminController));
 
 router.post("/addbooks",tryCatch(bookController.addBook))
 router.get("/allbooks",tryCatch(bookController.getAllBooks))
@@ -16,5 +18,7 @@ router.delete("books/:bookId",tryCatch(bookController.deleteBook))
 router.get("/allusers", tryCatch(usermanagement.getAllUsers));
 router.get("/users/:userId",tryCatch(usermanagement.getUserDetails))
 router.delete("/users/:userId",tryCatch(usermanagement.deleteUser))
+
+router.post("/fines",auth,tryCatch(fines.createFines))
 
 module.exports = router;
