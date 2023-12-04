@@ -19,6 +19,10 @@ router.get("/allusers", tryCatch(usermanagement.getAllUsers));
 router.get("/users/:userId",tryCatch(usermanagement.getUserDetails))
 router.delete("/users/:userId",tryCatch(usermanagement.deleteUser))
 
+router.get("/fines",auth,tryCatch(fines.getAllFines))
 router.post("/fines",auth,tryCatch(fines.createFines))
+router.get("/fines/:fineId",auth,tryCatch(fines.specificFine))
+router.put("/fines/:fineId",auth,tryCatch(fines.updateFine))
+router.delete("/fines/:fineId",auth,tryCatch(fines.deleteFine))
 
 module.exports = router;
