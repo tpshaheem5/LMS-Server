@@ -1,5 +1,6 @@
 const userSchema = require("../Model/userDatabase")
 const bookSchema = require("../Model/booksDatabase")
+const reserveSchema = require("../Model/reservationDatabase")
 
 const getBorrowedbook = async (req,res)=>{
     try {
@@ -34,33 +35,31 @@ const getSpecificBorrowedBook = async (req, res) => {
 
 const getReservedBook = async (req,res)=>{
     try {
-        const bookId = req.params.bookId
-        const user = await userSchema.findById(res.token)
-        if(user){
-            res.status(200).json({reservedbooks:user.reserveBooks})
+        const userId = res.token 
+       
+        const userReserve = await reserveSchema.findOne({userId:userId})
+        if(userReserve){
+            res.status(200).json({reservebook:userReserve})
         }else{
             res.status(404).json({ error: 'User not found' });
         }
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: error.message });
-    }
+    } 
 }
 
 const getSpecificReservedBooks = async (req,res)=>{
     try {
-        const bookId = req.params.bookId
-        const user = await userSchema.findById(res.token)
-        if(!user){
-            res.status(404).json({error:"User not found"})
+        const reserveId = req.params.reserveId
+        const specificReserve = await reserveSchema.findById(reserveId)
+        console.log(specificReserve,"specific book");
+        if(!specificReserve){
+            res.status(404).json({error:"Reservation  not found"})
         }
-        const reservedbook = await user.reserveBooks.find(book => book._id == bookId)
-        if(!reservedbook){
-            res.status(404).json({error:'Book not found in user\'s reserved list'})
-        }
-        res.status(200).json({reservedbookdetails :reservedbook})
+        res.status(200).json({reservedbookdetails :specificReserve})
     } catch (error) {
-        console.error(error);
+        console.error(error); 
         res.status(500).json({ error: error.message });
     }
 }

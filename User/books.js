@@ -1,5 +1,6 @@
 const bookSchema = require("../Model/booksDatabase")
 const userSchema = require('../Model/userDatabase')
+const reserveSchema = require("../Model/reservationDatabase")
 
 const getAllBooks = async (req,res)=>{
     try {
@@ -42,34 +43,39 @@ const getBookDetails  = async (req,res)=>{
 //         res.status(500).json({ error: "Internal Server error" });
 //     }
 // }
+
 const reserveBook = async (req, res) => {
   try {
+    const userId = res.token; 
     const bookId = req.params.bookId;
-    const book = await bookSchema.findById(bookId);
 
-    if (!book) {
-      return res.status(404).json({ error: 'Book not found' });
+    const book = await bookSchema.findById(bookId);
+    if (!book || book.availableCopies <= 0) {
+      return res.status(400).json({ error: 'Book not available for reservation' });
     }
-    if (book.availableCopies > 0) {
-      book.availableCopies -= 1;
-      const user = await userSchema.findById(res.token);
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-      const reservedBook = {
-        _id: book._id,
-        title: book.title,
-      };
-      user.reserveBooks.push(reservedBook);
-      await user.save();
-      await book.save();
-      res.status(201).json({ message: 'Book reserved successfully', reservedBook: reservedBook });
-    } else {
-      res.status(400).json({ error: 'No available copies for reservation' });
+
+    const existingReservation = await reserveSchema.findOne({ userId, bookId });
+    if (existingReservation) {
+      return res.status(400).json({ error: 'Book already reserved by the user' });
     }
+
+    const reservation = new reserveSchema({
+      userId,
+      bookId,
+      title: book.title,
+      reservationDate: new Date(),
+      pickupDeadline: new Date(), 
+    });
+
+    await bookSchema.updateOne({ _id: bookId }, { $inc: { availableCopies: -1 } });
+
+    await userSchema.updateOne({ _id: userId }, { $push: { reserveBooks: reservation } });
+    await reservation.save();
+
+    res.status(201).json({ message: 'Book reserved successfully', reservation });
   } catch (error) {
     console.error(error);
-    res.json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 

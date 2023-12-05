@@ -11,7 +11,7 @@ const getUserFines = async (req,res)=>{
    }
 }
 
-const getUserSpecificFine = async (req, res) => {
+const getUserSpecificFine = async (req,res) => {
     try {
       const fineId = req.params.fineId;
       const specificFine = await finesSchema.findById(fineId);

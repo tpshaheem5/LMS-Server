@@ -30,7 +30,7 @@ router.put("/password",auth,tryCatch(profile.updatePassword))
 router.get("/borrowed",auth,tryCatch(loans.getBorrowedbook))
 router.get("/borrowed/:bookId",auth,tryCatch(loans.getSpecificBorrowedBook))
 router.get("/reserved",auth,tryCatch(loans.getReservedBook))
-router.get("/reserved/:bookId",auth,tryCatch(loans.getSpecificReservedBooks))
+router.get("/reserved/:reserveId",auth,tryCatch(loans.getSpecificReservedBooks))
 
 router.get("/allfines",auth,tryCatch(fines.getUserFines))
 router.get("/fines/:fineId",auth,tryCatch(fines.getUserSpecificFine))

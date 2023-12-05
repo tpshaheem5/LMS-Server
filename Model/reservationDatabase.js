@@ -14,7 +14,7 @@ const reservationSchema = mongoose.Schema({
   reservationDate: {
     type: Date,
     default: Date.now,
-  },
+  }, 
   pickupDeadline: {
     type: Date,
     default: Date.now,
