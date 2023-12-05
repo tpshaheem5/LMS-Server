@@ -6,6 +6,7 @@ const usermanagement = require("../Controller/usermanagement")
 const fines = require('../Controller/fines')
 const tryCatch = require("../middlware/tryCatch")
 const auth = require("../middlware/auth")
+const reservation = require("../Controller/reservation")
 
 router.post('/login',auth,tryCatch(adminController));
 
@@ -24,5 +25,9 @@ router.post("/fines",auth,tryCatch(fines.createFines))
 router.get("/fines/:fineId",auth,tryCatch(fines.specificFine))
 router.put("/fines/:fineId",auth,tryCatch(fines.updateFine))
 router.delete("/fines/:fineId",auth,tryCatch(fines.deleteFine))
+
+router.get("/allreserve",auth,tryCatch(reservation.getAllReservation))
+router.get("/reserve/:reserveId",auth,tryCatch(reservation.specificReserve))
+router.delete("/reserve/:reserveId",auth,tryCatch(reservation.deleteReserve))
 
 module.exports = router;

@@ -70,7 +70,7 @@ const deleteFine = async (req,res)=>{
         if(!deletedfine){
             res.status(404).json({error:"Fine not found"})
         }
-        res.status(200).json({message:"Fine deleted successfully",deletedfine})
+        res.status(204).json({message:"Fine deleted successfully",deletedfine})
     } catch (error) {
         console.error(error);
     res.status(500).json({ error: error.message });
