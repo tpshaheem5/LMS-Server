@@ -63,6 +63,7 @@ const updateFine = async (req,res)=>{
     }
 }
 
+
 const deleteFine = async (req,res)=>{
     try {
         const fineId = req.params.fineId

@@ -33,7 +33,7 @@ router.get("/reserved",auth,tryCatch(loans.getReservedBook))
 router.get("/reserved/:reserveId",auth,tryCatch(loans.getSpecificReservedBooks))
 
 router.get("/allfines",auth,tryCatch(fines.getUserFines))
-router.get("/fines/:fineId",auth,tryCatch(fines.getUserSpecificFine))
+router.get("/fines/:fineId",auth,tryCatch(fines.getUserSpecificFine))   
 router.post("/fines/pay/:fineId",auth,tryCatch(fines.payFine))
 
 module.exports = router 

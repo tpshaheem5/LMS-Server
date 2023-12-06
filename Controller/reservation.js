@@ -23,6 +23,23 @@ const specificReserve = async (req,res)=>{
         res.status(500).json({error:"Internal Server error"})
     }
 }
+const createReserve = async (req,res)=>{
+    try {
+        const {userId, bookId, reservationDate,pickupDeadline} = req.body;
+        const reserve = new reserveSchema({
+            userId,
+            bookId,
+            reservationDate:new Date(),   
+            pickupDeadline: new Date(),   
+        })
+        await reserve.save()
+        res.status(201).json({ message: 'reserve created successfully', reserve });
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({error:"Internal Server error"})
+    }
+}
+
 
 const deleteReserve = async (req,res)=>{
     try {
@@ -38,4 +55,4 @@ const deleteReserve = async (req,res)=>{
     }
 }
 
-module.exports ={getAllReservation,specificReserve,deleteReserve}
+module.exports ={getAllReservation,specificReserve,createReserve,deleteReserve}
